@@ -5,17 +5,6 @@ import { tokenCheck } from "../../middlewares/auth.mw";
 
 const router = express.Router();
 
-// GET /api/books
-router.get('/', async (req, res) => {
-    try {
-        const books = await Books.getAll();
-        res.json(books);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Tried getting all books, but something went wrong." })
-    }
-});
-
 // GET /api/books/?
 router.get('/:id', async (req, res) => {
     try {
@@ -28,23 +17,22 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// GET /api/books
+router.get('/', async (req, res) => {
+    try {
+        const books = await Books.getAll();
+        res.json(books);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Tried getting all books, but something went wrong." })
+    }
+});
+
 router.post('/', tokenCheck, async (req, res) => {
     try {
         const { categoryid, title, author, price } = req.body;
 
         const results = await Books.create(categoryid, title, author, price);
-
-        if (!title || typeof title !== "string" || title.length > 100) {
-            return res.status(400).json({ message: "Sorry, titles must be between 1 and 100 characters." });
-        };
-
-        if (!author || typeof author !== "string" || author.length > 100) {
-            return res.status(400).json({ message: "Sorry, author names must be between 1 and 100 characters." });
-        };
-
-        if (!price || typeof price !== "number") {
-            return res.status(400).json({ message: "Sorry, a numerical price for this item is required." });
-        };
 
         res.status(201).json({ message: "Added a new book!", id: results.insertId });
     } catch (error) {
@@ -57,18 +45,6 @@ router.put('/:id', tokenCheck, async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         const { categoryid, title, author, price } = req.body;
-
-        if (!title || typeof title !== "string" || title.length > 100) {
-            return res.status(400).json({ message: "Sorry, titles must be between 1 and 100 characters." });
-        };
-
-        if (!author || typeof author !== "string" || author.length > 100) {
-            return res.status(400).json({ message: "Sorry, author names must be between 1 and 100 characters." });
-        };
-
-        if (!price || typeof price !== "number") {
-            return res.status(400).json({ message: "Sorry, a numerical price for this item is required." });
-        };
 
         await Books.update(categoryid, title, author, price, id);
 
